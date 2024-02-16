@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  players     Player[]
+  home Match[] @relation("Home")
+  away Match[] @relation("Away")
+  leagueId    String?  @db.ObjectId
+  league      League?  @relation(fields: [leagueId], references: [id])
+  groupId     String   @db.ObjectId
+  group       Group    @relation(fields: [groupId], references: [id])
+}
+
+
+model Player {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  number   Int? 
+  position String
+  teamId   String @db.ObjectId
+  team     Team   @relation(fields: [teamId], references: [id])
+}
+
+model Match {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  homeId  String    @db.ObjectId
+  home    Team      @relation(name: "Home", fields: [homeId], references: [id])
+  awayId  String    @db.ObjectId
+  away    Team      @relation(name: "Away", fields: [awayId], references: [id])
+  leagueId   String    @db.ObjectId
+  league     League    @relation(fields: [leagueId], references: [id])
+  dateTime   DateTime
+  scoreTeamOne Int?    @default(0) 
+  scoreTeamTwo Int?    @default(0)
+  status     MatchStatus @default(SCHEDULED)
+  events     Event[]
+  lineUps    LineUp[]
+}
+
+model League {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  year String
+  season String
+  startDate DateTime
+  endDate DateTime
+  teams     Team[]
+  matches     Match[]
+  groups      Group[] // Adding groups to the league
+}
+
+model Group {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String      @unique
+  leagueId   String      @db.ObjectId
+  league     League      @relation(fields: [leagueId], references: [id])
+  teams Team[]
+}
+
+
+model LineUp {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  matchId  String @db.ObjectId
+  match    Match  @relation(fields: [matchId], references: [id])
+  player   String
+  position String // Player's position in this match
+  status   String // Could be STARTER, SUBSTITUTE, etc.
+}
+
+model Event {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  matchId     String    @db.ObjectId
+  match       Match     @relation(fields: [matchId], references: [id])
+  minute      Int // The minute the event occurred
+  eventType   EventType
+  description String? // Optional description of the event
+}
+
+model User {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  password String
+  isAdmin  Boolean @default(false)
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  POSTPONED
+}
+
+enum EventType {
+  GOAL
+  YELLOW_CARD
+  RED_CARD
+}
