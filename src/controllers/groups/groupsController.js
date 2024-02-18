@@ -72,7 +72,7 @@ export const getGroupById = async (req, res) => {
             return res.status(404).json({ status: false, message: "Unknown group" });
         }
 
-        return res.status(200).json({ status: true, message: group });
+        return res.json({ group });
     } catch (error) {
         console.error('Error getting group:', error);
         return res.status(500).json({ status: false, message: "Something went wrong" });
@@ -108,7 +108,7 @@ export const updateGroup = async (req, res) => {
         });
 
         if (existingGroup) {
-            return res.status(409).json({ message: "A group with this name already exists in this league." });
+            return res.status(409).json( "Group name already exists in this league." );
         }
 
         // Prepare the updates

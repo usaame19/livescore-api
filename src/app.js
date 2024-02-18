@@ -7,6 +7,8 @@ import groupsRouter from './routes/group/groupsRouter.js';
 import matchesRouter from './routes/match/matchesRouter.js';
 import { createServer } from 'http';
 import { initIo } from './socket.js'; // Adjust the path as necessary
+import cookieParser from 'cookie-parser';
+import usersRouter from './routes/users/usersRouter.js';
 
 
 const app = express();
@@ -14,7 +16,7 @@ const httpServer = createServer(app);
 initIo(httpServer);
 
 
-
+app.use(cookieParser());
 const PORT = 8000;
 app.use(express.json());
 app.use('/api/v1/players', playersRouter);
@@ -23,6 +25,7 @@ app.use('/api/v1/leagues', leagueRouter);
 app.use('/api/v1/leagueteams', leagueteamsRouter);
 app.use('/api/v1/groups', groupsRouter);
 app.use('/api/v1/matches', matchesRouter);
+app.use('/api/v1/users', usersRouter);
 
 // 404
 // app.use((req, res, next) => {
