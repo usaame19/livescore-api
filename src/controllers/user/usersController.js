@@ -31,6 +31,8 @@ export const registerUser = async (req, res) => {
         name: name.toLowerCase(),
         email: email.toLowerCase(),
         password: hashedPassword,
+        resetToken: null, 
+        resetTokenExpiry: null,
       },
     });
 
@@ -97,6 +99,26 @@ export const getUserProfile = async (req, res) => {
   } catch (error) {
     console.error("Error at get user profile", error);
     res.status(400).send("Unknown error");
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+     select:{
+      id: true,
+      name: true,
+      email: true,
+     }
+    });
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: "No users found" });
+    }
+    res.json({ users });
+  } catch (error) {
+    console.error("Error getting users:", error);
+    res.status(500).json({ error: "An error occurred while fetching users" });
   }
 };
 
