@@ -293,3 +293,90 @@ export const checkToken = async (req, res) => {
     res.status(500).send({ status: false, message: "Server error" });
   }
 };
+
+
+
+export const deleteUser = async (req, res) => {
+  try {
+      const userId = req.params.id;
+      const user = await prisma.user.delete({
+          where: { id: userId },
+      });
+
+      if (!user) {
+          return res.status(404).json({ status: false, message: "Unknown user" });
+      }
+
+      return res.status(200).json({ status: true, message: "Deleted Successfully" });
+  } catch (error) {
+      console.error('Error getting user:', error);
+      return res.status(500).json({ status: false, message: "Something went wrong" });
+  }
+};
+
+
+export const updateUser = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const userId = req.params.id;
+    const lowercasedEmail = email.toLowerCase();
+
+    // Check if another user with the same email exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: lowercasedEmail,
+        NOT: {
+          id: userId,
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ status: false, message: "Email already in use" });
+    }
+
+    const updates = {
+      name: name.toLowerCase(),
+      email: lowercasedEmail,
+    };
+
+    // Update the user in the database
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updates,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ status: false, message: "Unknown user" });
+    }
+
+    return res.status(200).json({ status: true, message: "Updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({ status: false, message: "Something went wrong" });
+  }
+};
+
+
+export const getUserById = async (req, res) => {
+  try {
+      const userId = req.params.id;
+      const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+              id: true,
+              name: true,
+              email: true,
+          },
+      });
+
+      if (!user) {
+          return res.status(404).json({ status: false, message: "Unknown user" });
+      }
+
+      return res.status(200).json({ user });
+  } catch (error) {
+      console.error('Error getting user:', error);
+      return res.status(500).json({ status: false, message: "Something went wrong" });
+  }
+};
