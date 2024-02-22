@@ -94,6 +94,7 @@ model Event {
 enum MatchStatus {
   SCHEDULED
   LIVE
+  PAUSE
   COMPLETED
   POSTPONED
 }
