@@ -1,6 +1,7 @@
 import express from 'express';
 import { createMatch, deleteMatch, getMatchById, getMatches, getMatchesCompleted, getMatchesLive, getMatchesPause, getMatchesPostponed, getMatchesSchedule, updateMatch, updateStatus } from '../../controllers/matches/matchesController.js';
 import { authenticate } from '../../middlewares/authMiddleware.js';
+import { createMatchLineUpWithFormation } from '../../controllers/matches/lineup/lineupController.js';
 
 const matchesRouter = express.Router();
 
@@ -16,5 +17,8 @@ matchesRouter.patch('/update-match/:id', authenticate,updateMatch);
 matchesRouter.patch('/update-match-event/:id', authenticate, updateStatus);
 matchesRouter.delete('/delete-match/:id', authenticate,deleteMatch);
 
+
+// Match LineUp routes
+matchesRouter.post('/lineup/create-lineup', createMatchLineUpWithFormation);
 
 export default matchesRouter;
