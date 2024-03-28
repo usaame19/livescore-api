@@ -66,7 +66,7 @@ export const getMatchById = async (req, res) => {
 export const getMatchesLive = async (req, res) => {
   try {
     const match = await prisma.match.findMany({
-      where: { status: 'LIVE' },
+      where: { status: "LIVE" },
       include: {
         lineUps: true,
         away: true,
@@ -87,7 +87,7 @@ export const getMatchesLive = async (req, res) => {
 export const getMatchesSchedule = async (req, res) => {
   try {
     const match = await prisma.match.findMany({
-      where: { status: 'SCHEDULED' },
+      where: { status: "SCHEDULED" },
       include: {
         lineUps: true,
         away: true,
@@ -109,7 +109,7 @@ export const getMatchesSchedule = async (req, res) => {
 export const getMatchesPostponed = async (req, res) => {
   try {
     const match = await prisma.match.findMany({
-      where: { status: 'POSTPONED' },
+      where: { status: "POSTPONED" },
       include: {
         lineUps: true,
         away: true,
@@ -130,7 +130,7 @@ export const getMatchesPostponed = async (req, res) => {
 export const getMatchesCompleted = async (req, res) => {
   try {
     const match = await prisma.match.findMany({
-      where: { status: 'COMPLETED' },
+      where: { status: "COMPLETED" },
       include: {
         lineUps: true,
         away: true,
@@ -151,7 +151,7 @@ export const getMatchesCompleted = async (req, res) => {
 export const getMatchesPause = async (req, res) => {
   try {
     const match = await prisma.match.findMany({
-      where: { status: 'PAUSE' },
+      where: { status: "PAUSE" },
       include: {
         lineUps: true,
         away: true,
@@ -216,3 +216,23 @@ export const updateStatus = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+export const updateScore = async (req, res) => {
+  try {
+    const matchId = req.params.id;
+    const scoreTeamOne = req.body.scoreTeamOne;
+    const scoreTeamTwo = req.body.scoreTeamTwo;
+    const updatedMatch = await prisma.match.update({
+      where: { id: matchId },
+      data: {
+        scoreTeamOne,
+        scoreTeamTwo,
+      },
+    });
+    res.json(updatedMatch);
+  } catch (error) {
+    console.error("Error updating status match:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+

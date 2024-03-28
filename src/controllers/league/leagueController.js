@@ -1,5 +1,4 @@
 import prisma from "../../../prisma/client.js";
-import { getIo } from "../../socket.js"; // Adjust the path as necessary
 
 export const createLeague = async (req, res) => {
   const { name, season, year, startDate, endDate } = req.body;
@@ -25,9 +24,7 @@ export const createLeague = async (req, res) => {
         endDate: new Date(endDate),
       },
     });
-    const io = getIo(); 
-    console.log('Emitting leagueUpdated event');
-    io.emit("leagueAdded", newLeague);
+   
     return res.status(201).json(newLeague);
   } catch (error) {
     console.error("Error creating league:", error);

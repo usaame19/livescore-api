@@ -9,11 +9,11 @@ const usersRouter = express.Router();
 
 usersRouter.post('/register-user', registerUser);
 usersRouter.post('/login-user', validateUserLogin, loginUser);
-usersRouter.get('/get-user-profile', authenticate, getUserProfile);
-usersRouter.get('/get-users', authenticate, getUsers);
-usersRouter.get('/get-user/:id',authenticate, getUserById);
-usersRouter.delete('/delete-user/:id', authenticate, deleteUser);
-usersRouter.patch('/update-user/:id', authenticate, updateUser);
+usersRouter.get('/get-user-profile', getUserProfile);
+usersRouter.get('/get-users', getUsers);
+usersRouter.get('/get-user/:id', getUserById);
+usersRouter.delete('/delete-user/:id', deleteUser);
+usersRouter.patch('/update-user/:id', updateUser);
 
 usersRouter.post('/userdata',  getUserData);
 usersRouter.post('/forgot-password',  forgotPassword);

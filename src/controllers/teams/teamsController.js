@@ -54,48 +54,55 @@ export const createTeam = async (req, res) => {
 };
    
 export const getTeams = async (req, res) => {
-    try {
-      const teams = await prisma.team.findMany({
-        include: {
-          league: {
-            select: {
-              name: true,
-            },
+  try {
+    const teams = await prisma.team.findMany({
+      include: {
+        league: {
+          select: {
+            name: true,
           },
-          group: {
-              select: {
-                  name: true,
-              }
-          },
-          players: true,
-          home: true,
-          away: true,
         },
-      });
-  
-      if (teams.length === 0) {
-        return res.status(404).json({ error: "No teams found" });
-      }
-  
-      // Optionally process teams to handle null leagues
-      const processedTeams = teams.map(team => ({
-        ...team,
-        league: team.league ? team.league.name : 'No League', // Handle null leagues
-        group: team.group ? team.group.name : 'No Group', // Similarly for groups if necessary
-        // Adjust players and matches as needed
-      }));
-  
-      res.json({ teams: processedTeams });
-    } catch (error) {
-        console.error("Error getting teams:", error);
-        // Log more detailed error information if available
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            // Handle known request errors specifically
-            console.error("Detailed error info:", error.message, error.meta);
-        }
-        res.status(500).json({ error: "An error occurred while fetching teams", details: error.message });
+        group: {
+          select: {
+            name: true,
+          },
+        },
+        players: true,
+        home: true,
+        away: true,
+      },
+    });
+
+    if (teams.length === 0) {
+      return res.status(404).json({ error: "No teams found" });
     }
-}
+
+    // Optionally process teams to handle null leagues
+    const processedTeams = teams.map((team) => ({
+      ...team,
+      league: team.league ? team.league.name : "No League", // Handle null leagues
+      group: team.group ? team.group.name : "No Group", // Similarly for groups if necessary
+      points: team.points || 0, // Include points with a default value of 0 if not present
+      // Adjust players and matches as needed
+    }));
+
+    res.json({ teams: processedTeams });
+  } catch (error) {
+    console.error("Error getting teams:", error);
+    // Log more detailed error information if available
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Handle known request errors specifically
+      console.error("Detailed error info:", error.message, error.meta);
+    }
+    res
+      .status(500)
+      .json({
+        error: "An error occurred while fetching teams",
+        details: error.message,
+      });
+  }
+};
+
 
 export const getTeamById = async (req, res) => {
   try {
@@ -188,3 +195,59 @@ export const deleteTeam = async (req, res) => {
   }
 };
 
+
+
+// Create or update points for a team manually
+export const addPoints = async (req, res) => {
+  try {
+    const { teamId, points } = req.body;
+
+    // Update the team in the database
+    const updatedTeam = await prisma.team.update({
+      where: { id: teamId },
+      data: {
+        points: {
+          increment: points // Increment the current points by the provided value
+        }
+      },
+    });
+
+    res.json(updatedTeam);
+  } catch (error) {
+    console.error("Error creating or updating team points:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+
+
+// Get points for all teams
+export const getTeamPoints = async (req, res) => {
+  try {
+    const teamPoints = await prisma.team.findMany({
+      include: { team: true },
+    });
+    res.json(teamPoints);
+  } catch (error) {
+    console.error("Error getting team points:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Get points for a specific team
+export const getTeamPointsById = async (req, res) => {
+  try {
+    const teamId = req.params.id;
+    const teamPoints = await prisma.team.findUnique({
+      where: { teamId },
+      include: { team: true },
+    });
+    if (!teamPoints) {
+      return res.status(404).json({ message: "Team points not found" });
+    }
+    res.json(teamPoints);
+  } catch (error) {
+    console.error("Error getting team points:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};

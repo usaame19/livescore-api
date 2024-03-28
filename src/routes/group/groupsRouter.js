@@ -4,11 +4,11 @@ import { authenticate } from '../../middlewares/authMiddleware.js';
 
 const groupsRouter = express.Router();
 
-groupsRouter.post('/create-group', authenticate, createGroup);
+groupsRouter.post('/create-group', createGroup);
 groupsRouter.get('/get-group/:id', getGroupById);
 groupsRouter.get('/get-groups' ,getGroups);
-groupsRouter.patch('/update-group/:id', authenticate,updateGroup);
-groupsRouter.delete('/delete-group/:id', authenticate,deleteGroup);
+groupsRouter.patch('/update-group/:id',updateGroup);
+groupsRouter.delete('/delete-group/:id',deleteGroup);
 
 
 export default groupsRouter;
